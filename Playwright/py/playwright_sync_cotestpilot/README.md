@@ -17,9 +17,7 @@ An AI-powered page checking extension for Playwright that automates web testing 
 
 ## Installation
 
-```bash
-pip install playwright-cotestpilot
-```
+Download code locally (PIP insteall coming soon hopefully!)
 
 ## Prerequisites
 
