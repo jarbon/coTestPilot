@@ -17,7 +17,7 @@ An AI-powered page checking extension for Playwright that automates web testing 
 
 ## Installation
 
-Download code locally (PIP insteall coming soon hopefully!)
+Download code locally (PIP install coming soon hopefully!)
 
 ## Prerequisites
 
