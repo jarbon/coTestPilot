@@ -17,9 +17,7 @@ An AI-powered page checking extension for Selenium 4 that automates web testing 
 
 ## Installation
 
-```bash
-pip install selenium-cotestpilot
-```
+Download the selenium_cotestpilot folder to your test folder. (PIP coming soon if someone can help!)
 
 ## Prerequisites
 
