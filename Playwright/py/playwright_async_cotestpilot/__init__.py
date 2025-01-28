@@ -308,7 +308,6 @@ async def check(self,
         with open(screenshot_path, "rb") as image_file:
             import base64
             screenshot_base64 = base64.b64encode(image_file.read()).decode('utf-8')
-            print('cscrn')
         
         # Validate inputs
         if timeout < 1000:
@@ -321,14 +320,10 @@ async def check(self,
 
         # Select testers - default to just Jason if no testers specified
         selected_testers = []
-        print('TESTERS', TESTERS)
-        print('testers', testers)
         
         if testers is None:
-            
-            selected_testers = [t for t in TESTERS if t['name'].lower() == 'jason']
-
-            print('ff selected_testers', selected_testers)
+            selected_testers = [t for t in TESTERS if t['name'].lower() in ['jason', 'aiden']]
+            #print('selected_testers', selected_testers)
         else:
             # Case-insensitive matching for tester names
             selected_testers = [
@@ -336,8 +331,8 @@ async def check(self,
                 if any(requested.lower() in t['name'].lower() for requested in testers)
             ]
             if not selected_testers:
-                logger.warning(f"No matching testers found for {testers}. Using Jason as default tester.")
-                selected_testers = [t for t in TESTERS if t['name'].lower() == 'jason']
+                logger.warning(f"No matching testers found for {testers}. Using Jason and Aiden as default testers.")
+                selected_testers = [t for t in TESTERS if t['name'].lower() in ['jason', 'aiden']]
         
         # Get current page URL and content
         url = self.url
@@ -349,8 +344,7 @@ async def check(self,
         for tester in selected_testers:
             # Generate vision prompt for this specific tester
             vision_prompt = f"""Please analyze this webpage for any errors, issues, or problems.
-
-IMPORTANT: Only return high-confidence issues. It is perfectly acceptable to return no issues if none are found with high confidence.
+IMPORTANT: ONLY return issues that you can tell by just looking at teh screenhot, without taking actions.
 For each issue found, include a confidence score between 0 and 1, where:
 - 1.0 means absolutely certain this is an issue
 - 0.8-0.9 means very confident
@@ -403,6 +397,7 @@ return only the JSON array, no other text or comments.
             while retries > 0:
                 try:
                     vision_response = chat_vision(vision_prompt, screenshot_base64)
+                    print(f"AI Analysis Results from {tester['name']}:%s" % (vision_response))
                     break
                 except Exception as e:
                     retries -= 1
@@ -411,7 +406,7 @@ return only the JSON array, no other text or comments.
                     logger.warning(f"API call failed, retrying... ({retries} attempts left)")
                     time.sleep(2)
                     
-            print(f"AI Analysis Results from {tester['name']}:")
+            
             
             # Add tester's issues to results
             all_findings.append({
@@ -563,15 +558,12 @@ async def report(self, output_dir: str = "ai_check_results") -> str:
                         all_results.append(results)
             except Exception as e:
                 logger.warning(f"Error reading {json_file}: {str(e)}")
-        
+        #print('all_results', all_results)
         # Get template from package directory
         package_dir = os.path.dirname(os.path.abspath(__file__))
         template_path = os.path.join(package_dir, 'report_template.html')
         
-        # Copy screenshots to reports directoryt
-        print('all_results', all_results)
-        logger.info(f"all_results{all_results}")
-        
+        # Copy screenshots to reports directory
         for result in all_results:
             if 'screenshot' in result:
                 screenshot_path = result['screenshot']
